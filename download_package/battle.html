@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バトル - 名探偵コナン TCG</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .info-item { text-align: center; }
+        .info-label { font-size: 0.8em; opacity: 0.8; }
+        .info-value { font-size: 1.3em; font-weight: bold; }
+
+        .game-board { padding: 20px; }
+
+        .player-area {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .player-area.current {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .player-stats { display: flex; gap: 20px; }
+        .stat { text-align: center; }
+        .stat-label { font-size: 0.8em; color: #666; }
+        .stat-value { font-size: 1.2em; font-weight: bold; color: #667eea; }
+
+        .field { margin: 15px 0; }
+        .field-label { font-weight: bold; margin-bottom: 10px; color: #555; }
+        .cards { display: flex; gap: 10px; flex-wrap: wrap; min-height: 80px; }
+
+        .card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            min-width: 150px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .card.sleep {
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+
+        .card-name { font-weight: bold; margin-bottom: 5px; color: #1e3c72; }
+        .card-stats { font-size: 0.9em; color: #666; margin-top: 3px; }
+
+        .card-level {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+
+        .actions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .actions h3 { margin-bottom: 15px; color: #1e3c72; }
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+
+        .message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            display: none;
+        }
+
+        .message.error { background: #ffebee; border-left-color: #f44336; }
+        .message.success { background: #e8f5e9; border-left-color: #4caf50; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .modal-content h2 { color: #1e3c72; margin-bottom: 20px; font-size: 2em; }
+        .modal-content p { font-size: 1.2em; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h1>🔍 名探偵コナン TCG 🎴</h1>
+                <button onclick="location.href='index.html'" style="background:rgba(255,255,255,0.2);border:2px solid white;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;">🏠 メニューへ</button>
+            </div>
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">ターン</div>
+                    <div class="info-value" id="turn-number">1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">フェーズ</div>
+                    <div class="info-value" id="current-phase">メイン</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">デッキ</div>
+                    <div class="info-value" id="deck-type">カスタム</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="player-area" id="ai-area">
+                <div class="player-header">
+                    <div class="player-name">🤖 AI (服部平次)</div>
+                    <div class="player-stats">
+                        <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="ai-file">0</div></div>
+                        <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="ai-evidence">0/6</div></div>
+                        <div class="stat"><div class="stat-label">手札</div><div class="stat-value" id="ai-hand">0</div></div>
+                        <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="ai-case">事件</div></div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">場のキャラクター</div>
+                    <div class="cards" id="ai-field"></div>
+                </div>
+            </div>
+
+            <div class="player-area current" id="player-area">
+                <div class="player-header">
+                    <div class="player-name">👤 あなた (江戸川コナン)</div>
+                    <div class="player-stats">
+                        <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="player-file">0</div></div>
+                        <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="player-evidence">0/7</div></div>
+                        <div class="stat"><div class="stat-label">デッキ</div><div class="stat-value" id="player-deck">40</div></div>
+                        <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="player-case">事件</div></div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">場のキャラクター</div>
+                    <div class="cards" id="player-field"></div>
+                </div>
+                <div class="field">
+                    <div class="field-label">手札 (クリックで選択)</div>
+                    <div class="cards" id="player-hand"></div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <h3>アクション</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="game.playCard()">カードをプレイ</button>
+                    <button class="btn-primary" onclick="game.performReasoning()">推理する</button>
+                    <button class="btn-danger" onclick="game.performAttack()">アクション（攻撃）</button>
+                    <button class="btn-warning" onclick="game.useAssist()">アシスト</button>
+                    <button class="btn-success" onclick="game.resolveCase()">事件解決</button>
+                    <button class="btn-primary" onclick="game.endTurn()">ターン終了</button>
+                </div>
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="victory-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 ゲーム終了！</h2>
+            <p id="victory-message"></p>
+            <button class="btn-primary" onclick="location.reload()">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script>
+        // Game logic embedded
+        const game = (function() {
+            let gameState = null;
+            let selectedCard = null;
+
+            // カードデータ
+            const CARDS = {
+                characters: [
+                    {id:'c1',name:'小嶋元太',level:1,ap:2,lp:1},{id:'c2',name:'円谷光彦',level:1,ap:1,lp:2},
+                    {id:'c3',name:'吉田歩美',level:1,ap:1,lp:1},{id:'c4',name:'灰原哀',level:1,ap:2,lp:2},
+                    {id:'c5',name:'毛利蘭',level:2,ap:4,lp:2},{id:'c6',name:'鈴木園子',level:2,ap:2,lp:3},
+                    {id:'c7',name:'遠山和葉',level:2,ap:3,lp:2},{id:'c8',name:'毛利小五郎',level:2,ap:3,lp:1},
+                    {id:'c9',name:'工藤新一',level:3,ap:4,lp:4},{id:'c10',name:'怪盗キッド',level:3,ap:5,lp:3},
+                    {id:'c11',name:'赤井秀一',level:3,ap:6,lp:3},{id:'c12',name:'安室透',level:3,ap:5,lp:4},
+                    {id:'c13',name:'コナン(推理)',level:4,ap:3,lp:5},{id:'c14',name:'平次(推理)',level:4,ap:4,lp:5}
+                ],
+                events: [
+                    {id:'e1',name:'新たな手がかり',level:1,effect:'証拠+1'},
+                    {id:'e2',name:'推理ショー',level:2,effect:'証拠+2'},
+                    {id:'e3',name:'混乱',level:1,effect:'相手証拠-1'},
+                    {id:'e4',name:'現場検証',level:2,effect:'ドロー+1'},
+                    {id:'e5',name:'罠',level:2,effect:'キャラ破壊'}
+                ]
+            };
+
+            function shuffle(arr) {
+                const a = [...arr];
+                for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+                return a;
+            }
+
+            function buildDeck() {
+                // カスタムデッキを読み込み
+                const savedDeck = localStorage.getItem('customDeck');
+                if(savedDeck) {
+                    try {
+                        const customDeck = JSON.parse(savedDeck);
+                        if(customDeck.length === 40) {
+                            document.getElementById('deck-type').textContent = 'カスタム';
+                            return shuffle(customDeck);
+                        }
+                    } catch(e) {
+                        console.error('カスタムデッキの読み込みに失敗:', e);
+                    }
+                }
+
+                // デフォルトデッキ
+                document.getElementById('deck-type').textContent = 'デフォルト';
+                const deck = [];
+                const chars = CARDS.characters;
+                // レベル1:12, 2:12, 3:4, 4:2
+                for(let i=0;i<12;i++) deck.push({...chars[i%4],type:'CHARACTER'});
+                for(let i=0;i<12;i++) deck.push({...chars[4+(i%4)],type:'CHARACTER'});
+                for(let i=0;i<4;i++) deck.push({...chars[8+(i%4)],type:'CHARACTER'});
+                for(let i=0;i<2;i++) deck.push({...chars[12+(i%2)],type:'CHARACTER'});
+                for(let i=0;i<10;i++) deck.push({...CARDS.events[i%5],type:'EVENT'});
+                return shuffle(deck);
+            }
+
+            function initGame() {
+                const p1Deck = buildDeck();
+                const p2Deck = buildDeck();
+
+                gameState = {
+                    player1: {
+                        id:'player1', name:'あなた', partner:'江戸川コナン', partnerState:'ACTIVE',
+                        casePhase:'INCIDENT', deck:p1Deck, hand:[], field:[], fileArea:[], evidenceArea:[],
+                        discardPile:[], isFirstPlayer:true
+                    },
+                    player2: {
+                        id:'player2', name:'AI', partner:'服部平次', partnerState:'ACTIVE',
+                        casePhase:'INCIDENT', deck:p2Deck, hand:[], field:[], fileArea:[], evidenceArea:[],
+                        discardPile:[], isFirstPlayer:false
+                    },
+                    currentPlayer:'player1',
+                    turnNumber:1,
+                    phase:'AUTO',
+                    winner:null
+                };
+
+                // 初期ドロー
+                for(let i=0;i<5;i++) { drawCard(gameState.player1); drawCard(gameState.player2); }
+                return gameState;
+            }
+
+            function drawCard(player) {
+                if(player.deck.length===0) return null;
+                const card = player.deck.shift();
+                player.hand.push(card);
+                return card;
+            }
+
+            function processAutoPhase(gs) {
+                const cp = gs[gs.currentPlayer];
+
+                // リフレッシュ
+                cp.field.forEach(f => f.state='ACTIVE');
+                cp.partnerState='ACTIVE';
+
+                // FILE追加
+                const fileCount = (gs.turnNumber===1 && cp.isFirstPlayer) ? 1 : 2;
+                for(let i=0;i<fileCount;i++) {
+                    if(cp.deck.length>0) cp.fileArea.push(cp.deck.shift());
+                }
+
+                // ドロー
+                drawCard(cp);
+
+                gs.phase='MAIN';
+            }
+
+            function executeAction(gs, action) {
+                const cp = gs[gs.currentPlayer];
+                const opp = gs[gs.currentPlayer==='player1'?'player2':'player1'];
+
+                switch(action.type) {
+                    case 'PLAY_CHARACTER':
+                    case 'PLAY_EVENT':
+                        return playCard(cp, opp, action.cardId, action.type);
+                    case 'REASONING':
+                        return reasoning(cp, action.cardId);
+                    case 'ATTACK':
+                        return attack(cp, opp, action.cardId, action.targetId);
+                    case 'PARTNER_ASSIST':
+                        return assist(cp);
+                    case 'CASE_RESOLUTION':
+                        return caseResolution(gs, cp);
+                    case 'END_TURN':
+                        return endTurn(gs);
+                    default:
+                        return {success:false, message:'無効なアクション'};
+                }
+            }
+
+            function playCard(player, opp, cardId, type) {
+                const idx = player.hand.findIndex(c=>c.id===cardId);
+                if(idx===-1) return {success:false, message:'カードが手札にありません'};
+
+                const card = player.hand[idx];
+                if(card.type !== type.replace('PLAY_','')) return {success:false, message:'カードタイプが違います'};
+                if(card.level > player.fileArea.length) return {success:false, message:`レベル不足(必要:${card.level}, FILE:${player.fileArea.length})`};
+
+                player.hand.splice(idx, 1);
+
+                if(card.type==='CHARACTER') {
+                    player.field.push({card, state:'ACTIVE', temporaryAP:0, temporaryLP:0});
+                    return {success:true, message:`${card.name}を場に出しました`};
+                } else {
+                    // イベント効果
+                    let msg = `${card.name}を使用: `;
+                    if(card.id==='e1') {
+                        if(player.deck.length>0) player.evidenceArea.push(player.deck.shift());
+                        msg += '証拠+1';
+                    } else if(card.id==='e2') {
+                        for(let i=0;i<2;i++) if(player.deck.length>0) player.evidenceArea.push(player.deck.shift());
+                        msg += '証拠+2';
+                    } else if(card.id==='e3') {
+                        if(opp.evidenceArea.length>0) opp.discardPile.push(opp.evidenceArea.pop());
+                        msg += '相手証拠-1';
+                    } else if(card.id==='e4') {
+                        drawCard(player);
+                        msg += 'ドロー+1';
+                    } else if(card.id==='e5') {
+                        if(opp.field.length>0) {
+                            const target = opp.field[0];
+                            opp.field.shift();
+                            opp.discardPile.push(target.card);
+                            msg += `${target.card.name}を破壊`;
+                        }
+                    }
+                    player.discardPile.push(card);
+                    return {success:true, message:msg};
+                }
+            }
+
+            function reasoning(player, cardId) {
+                if(cardId==='partner') {
+                    if(player.partnerState!=='ACTIVE') return {success:false, message:'パートナーはSleep'};
+                    const lp = 2;
+                    for(let i=0;i<lp;i++) if(player.deck.length>0) player.evidenceArea.push(player.deck.shift());
+                    player.partnerState='SLEEP';
+                    return {success:true, message:`${player.partner}で推理: 証拠+${lp}`};
+                }
+
+                const fc = player.field.find(f=>f.card.id===cardId);
+                if(!fc) return {success:false, message:'キャラが場にいません'};
+                if(fc.state!=='ACTIVE') return {success:false, message:'キャラはSleep'};
+
+                const lp = fc.card.lp + fc.temporaryLP;
+                for(let i=0;i<lp;i++) if(player.deck.length>0) player.evidenceArea.push(player.deck.shift());
+                fc.state='SLEEP';
+                return {success:true, message:`${fc.card.name}で推理: 証拠+${lp}`};
+            }
+
+            function attack(player, opp, attackerId, targetId) {
+                const attacker = player.field.find(f=>f.card.id===attackerId);
+                if(!attacker) return {success:false, message:'攻撃キャラが場にいません'};
+                if(attacker.state!=='ACTIVE') return {success:false, message:'攻撃キャラはSleep'};
+
+                attacker.state='SLEEP';
+
+                // 証拠操作
+                if(opp.evidenceArea.length>0) opp.discardPile.push(opp.evidenceArea.pop());
+                if(player.deck.length>0) player.evidenceArea.push(player.deck.shift());
+
+                if(!targetId) {
+                    return {success:true, message:`${attacker.card.name}でアクション: 相手証拠-1, 自分証拠+1`};
+                }
+
+                // コンタクト
+                const defender = opp.field.find(f=>f.card.id===targetId);
+                if(!defender) return {success:false, message:'対象キャラが場にいません'};
+
+                const aAP = attacker.card.ap + attacker.temporaryAP;
+                const dAP = defender.card.ap + defender.temporaryAP;
+                let result = '';
+
+                if(aAP > dAP) {
+                    const didx = opp.field.indexOf(defender);
+                    opp.field.splice(didx, 1);
+                    opp.discardPile.push(defender.card);
+                    result = `${defender.card.name}を破壊`;
+                } else {
+                    const aidx = player.field.indexOf(attacker);
+                    player.field.splice(aidx, 1);
+                    player.discardPile.push(attacker.card);
+                    result = `${attacker.card.name}が破壊された`;
+                }
+
+                return {success:true, message:`コンタクト！${result}\n証拠: 相手-1, 自分+1`};
+            }
+
+            function assist(player) {
+                if(player.partnerState!=='ACTIVE') return {success:false, message:'パートナーはSleep'};
+                if(player.casePhase==='RESOLUTION') return {success:false, message:'既に解決フェーズ'};
+                if(player.fileArea.length<6) return {success:false, message:`FILE不足(必要:7, 現在:${player.fileArea.length})`};
+
+                player.partnerState='SLEEP';
+                player.casePhase='RESOLUTION';
+                return {success:true, message:'アシスト使用！事件が解決フェーズへ移行'};
+            }
+
+            function caseResolution(gs, player) {
+                if(player.casePhase!=='RESOLUTION') return {success:false, message:'事件が解決フェーズにない'};
+                const req = player.isFirstPlayer ? 7 : 6;
+                if(player.evidenceArea.length<req) return {success:false, message:`証拠不足(必要:${req}, 現在:${player.evidenceArea.length})`};
+
+                gs.winner = gs.currentPlayer;
+                return {success:true, message:`事件解決！${player.name}の勝利！`, gameState:gs};
+            }
+
+            function endTurn(gs) {
+                gs.phase='END';
+                gs.currentPlayer = gs.currentPlayer==='player1' ? 'player2' : 'player1';
+                gs.turnNumber++;
+                gs.phase='AUTO';
+                return {success:true, message:'ターン終了', gameState:gs};
+            }
+
+            function checkWinner(gs) {
+                if(gs.player1.deck.length===0) return 'player2';
+                if(gs.player2.deck.length===0) return 'player1';
+                return gs.winner;
+            }
+
+            function getAIAction(gs) {
+                const ai = gs[gs.currentPlayer];
+                const opp = gs[gs.currentPlayer==='player1'?'player2':'player1'];
+
+                // 勝利可能なら事件解決
+                if(ai.casePhase==='RESOLUTION' && ai.evidenceArea.length>=(ai.isFirstPlayer?7:6)) {
+                    return {type:'CASE_RESOLUTION'};
+                }
+
+                // アシスト可能なら
+                if(ai.partnerState==='ACTIVE' && ai.casePhase==='INCIDENT' && ai.fileArea.length>=6) {
+                    return {type:'PARTNER_ASSIST'};
+                }
+
+                // 証拠が足りなければ推理
+                const reqEv = ai.isFirstPlayer ? 7 : 6;
+                if(ai.evidenceArea.length < reqEv-2) {
+                    if(ai.partnerState==='ACTIVE') return {type:'REASONING', cardId:'partner'};
+                    const activeChars = ai.field.filter(f=>f.state==='ACTIVE');
+                    if(activeChars.length>0) {
+                        activeChars.sort((a,b)=>b.card.lp-a.card.lp);
+                        return {type:'REASONING', cardId:activeChars[0].card.id};
+                    }
+                }
+
+                // キャラをプレイ
+                const charCards = ai.hand.filter(c=>c.type==='CHARACTER' && c.level<=ai.fileArea.length);
+                if(charCards.length>0) {
+                    charCards.sort((a,b)=>b.level-a.level);
+                    return {type:'PLAY_CHARACTER', cardId:charCards[0].id};
+                }
+
+                // イベントをプレイ
+                const eventCards = ai.hand.filter(c=>c.type==='EVENT' && c.level<=ai.fileArea.length);
+                if(eventCards.length>0) {
+                    return {type:'PLAY_EVENT', cardId:eventCards[0].id};
+                }
+
+                // 推理
+                if(ai.partnerState==='ACTIVE') return {type:'REASONING', cardId:'partner'};
+                const activeChars2 = ai.field.filter(f=>f.state==='ACTIVE');
+                if(activeChars2.length>0) return {type:'REASONING', cardId:activeChars2[0].card.id};
+
+                // 攻撃
+                const attackers = ai.field.filter(f=>f.state==='ACTIVE');
+                if(attackers.length>0) {
+                    return {type:'ATTACK', cardId:attackers[0].card.id};
+                }
+
+                return {type:'END_TURN'};
+            }
+
+            function updateUI() {
+                const p = gameState.player1;
+                const a = gameState.player2;
+
+                document.getElementById('turn-number').textContent = gameState.turnNumber;
+                document.getElementById('current-phase').textContent = gameState.phase;
+
+                document.getElementById('player-file').textContent = p.fileArea.length;
+                document.getElementById('player-evidence').textContent = `${p.evidenceArea.length}/7`;
+                document.getElementById('player-deck').textContent = p.deck.length;
+                document.getElementById('player-case').textContent = p.casePhase;
+
+                document.getElementById('ai-file').textContent = a.fileArea.length;
+                document.getElementById('ai-evidence').textContent = `${a.evidenceArea.length}/6`;
+                document.getElementById('ai-hand').textContent = a.hand.length;
+                document.getElementById('ai-case').textContent = a.casePhase;
+
+                renderField('player-field', p.field);
+                renderHand('player-hand', p.hand);
+                renderField('ai-field', a.field);
+
+                const winner = checkWinner(gameState);
+                if(winner) {
+                    const winnerName = winner==='player1' ? 'あなた' : 'AI';
+                    document.getElementById('victory-message').textContent = `${winnerName}の勝利！`;
+                    document.getElementById('victory-modal').classList.add('active');
+                }
+            }
+
+            function renderField(elemId, field) {
+                const cont = document.getElementById(elemId);
+                cont.innerHTML = '';
+                if(field.length===0) {
+                    cont.innerHTML = '<div style="color:#999;padding:20px;">なし</div>';
+                    return;
+                }
+                field.forEach(fc => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    if(fc.state==='SLEEP') div.classList.add('sleep');
+                    div.innerHTML = `<div class="card-name">${fc.card.name}</div>
+                        <div class="card-stats"><span class="card-level">Lv${fc.card.level}</span> AP:${fc.card.ap} LP:${fc.card.lp}</div>
+                        <div class="card-stats">${fc.state}</div>`;
+                    if(elemId==='player-field' && fc.state==='ACTIVE') {
+                        div.onclick = () => { selectedCard=fc.card.id; updateUI(); };
+                    }
+                    if(selectedCard===fc.card.id) div.classList.add('selected');
+                    cont.appendChild(div);
+                });
+            }
+
+            function renderHand(elemId, hand) {
+                const cont = document.getElementById(elemId);
+                cont.innerHTML = '';
+                if(hand.length===0) {
+                    cont.innerHTML = '<div style="color:#999;padding:20px;">なし</div>';
+                    return;
+                }
+                hand.forEach(card => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    if(selectedCard===card.id) div.classList.add('selected');
+
+                    if(card.type==='CHARACTER') {
+                        div.innerHTML = `<div class="card-name">${card.name}</div>
+                            <div class="card-stats"><span class="card-level">Lv${card.level}</span> AP:${card.ap} LP:${card.lp}</div>`;
+                    } else {
+                        div.innerHTML = `<div class="card-name">[イベント] ${card.name}</div>
+                            <div class="card-stats"><span class="card-level">Lv${card.level}</span></div>
+                            <div class="card-stats" style="font-size:0.8em;">${card.effect}</div>`;
+                    }
+
+                    div.onclick = () => { selectedCard=selectedCard===card.id?null:card.id; updateUI(); };
+                    cont.appendChild(div);
+                });
+            }
+
+            function showMessage(text, type='info') {
+                const msg = document.getElementById('message');
+                msg.textContent = text;
+                msg.className = 'message ' + type;
+                msg.style.display = 'block';
+                setTimeout(()=>msg.style.display='none', 3000);
+            }
+
+            function playAITurn() {
+                processAutoPhase(gameState);
+                updateUI();
+
+                let count = 0;
+                const interval = setInterval(() => {
+                    if(count>=15 || gameState.currentPlayer==='player1') {
+                        clearInterval(interval);
+                        return;
+                    }
+
+                    const action = getAIAction(gameState);
+                    const result = executeAction(gameState, action);
+                    showMessage(`AI: ${result.message}`, result.success?'success':'error');
+                    if(result.gameState) gameState = result.gameState;
+                    updateUI();
+
+                    if(action.type==='END_TURN') {
+                        clearInterval(interval);
+                        processAutoPhase(gameState);
+                        updateUI();
+                    }
+                    count++;
+                }, 800);
+            }
+
+            return {
+                init() {
+                    gameState = initGame();
+                    processAutoPhase(gameState);
+                    updateUI();
+                },
+                playCard() {
+                    if(!selectedCard) { showMessage('カードを選択してください','error'); return; }
+                    const card = gameState.player1.hand.find(c=>c.id===selectedCard);
+                    if(!card) { showMessage('カードが手札にありません','error'); return; }
+                    const type = card.type==='CHARACTER'?'PLAY_CHARACTER':'PLAY_EVENT';
+                    const r = executeAction(gameState, {type, cardId:selectedCard});
+                    showMessage(r.message, r.success?'success':'error');
+                    selectedCard = null;
+                    updateUI();
+                },
+                performReasoning() {
+                    if(!selectedCard) {
+                        // パートナーで推理
+                        const r = executeAction(gameState, {type:'REASONING', cardId:'partner'});
+                        showMessage(r.message, r.success?'success':'error');
+                    } else {
+                        const r = executeAction(gameState, {type:'REASONING', cardId:selectedCard});
+                        showMessage(r.message, r.success?'success':'error');
+                        selectedCard = null;
+                    }
+                    updateUI();
+                },
+                performAttack() {
+                    if(!selectedCard) { showMessage('攻撃キャラを選択','error'); return; }
+                    const r = executeAction(gameState, {type:'ATTACK', cardId:selectedCard});
+                    showMessage(r.message, r.success?'success':'error');
+                    selectedCard = null;
+                    updateUI();
+                },
+                useAssist() {
+                    const r = executeAction(gameState, {type:'PARTNER_ASSIST'});
+                    showMessage(r.message, r.success?'success':'error');
+                    updateUI();
+                },
+                resolveCase() {
+                    const r = executeAction(gameState, {type:'CASE_RESOLUTION'});
+                    showMessage(r.message, r.success?'success':'error');
+                    if(r.gameState) gameState = r.gameState;
+                    updateUI();
+                },
+                endTurn() {
+                    const r = executeAction(gameState, {type:'END_TURN'});
+                    if(r.gameState) gameState = r.gameState;
+                    showMessage('ターン終了','success');
+                    selectedCard = null;
+                    updateUI();
+                    if(gameState.currentPlayer==='player2') setTimeout(playAITurn, 1000);
+                }
+            };
+        })();
+
+        window.onload = () => game.init();
+    </script>
+</body>
+</html>
