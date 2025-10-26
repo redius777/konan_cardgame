@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名探偵コナン トレーディングカードゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .game-board {
+            padding: 20px;
+        }
+
+        .player-area {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .player-area.current {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .field {
+            margin: 15px 0;
+        }
+
+        .field-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .cards {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            min-width: 150px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .card.sleep {
+            opacity: 0.6;
+            transform: rotate(90deg);
+        }
+
+        .card-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1e3c72;
+        }
+
+        .card-stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .card-level {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+
+        .actions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .actions h3 {
+            margin-bottom: 15px;
+            color: #1e3c72;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+
+        .message.error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .modal-content h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .cards {
+                flex-direction: column;
+            }
+
+            .card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 名探偵コナン トレーディングカードゲーム 🎴</h1>
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">ターン</div>
+                    <div class="info-value" id="turn-number">1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">フェーズ</div>
+                    <div class="info-value" id="current-phase">メイン</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <!-- AI Player -->
+            <div class="player-area" id="ai-area">
+                <div class="player-header">
+                    <div class="player-name">🤖 AI (服部平次)</div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <div class="stat-label">FILE</div>
+                            <div class="stat-value" id="ai-file">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">証拠</div>
+                            <div class="stat-value" id="ai-evidence">0/6</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">手札</div>
+                            <div class="stat-value" id="ai-hand">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">事件</div>
+                            <div class="stat-value" id="ai-case">事件</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">場のキャラクター</div>
+                    <div class="cards" id="ai-field"></div>
+                </div>
+            </div>
+
+            <!-- Human Player -->
+            <div class="player-area current" id="player-area">
+                <div class="player-header">
+                    <div class="player-name">👤 あなた (江戸川コナン)</div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <div class="stat-label">FILE</div>
+                            <div class="stat-value" id="player-file">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">証拠</div>
+                            <div class="stat-value" id="player-evidence">0/7</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">デッキ</div>
+                            <div class="stat-value" id="player-deck">40</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">事件</div>
+                            <div class="stat-value" id="player-case">事件</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">場のキャラクター</div>
+                    <div class="cards" id="player-field"></div>
+                </div>
+                <div class="field">
+                    <div class="field-label">手札</div>
+                    <div class="cards" id="player-hand"></div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <h3>アクション</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="playCard()">カードをプレイ</button>
+                    <button class="btn-primary" onclick="performReasoning()">推理する</button>
+                    <button class="btn-danger" onclick="performAttack()">アクション（攻撃）</button>
+                    <button class="btn-warning" onclick="useAssist()">アシスト</button>
+                    <button class="btn-success" onclick="resolveCase()">事件解決</button>
+                    <button class="btn-primary" onclick="endTurn()">ターン終了</button>
+                </div>
+                <div id="message" class="message" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="victory-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 ゲーム終了！</h2>
+            <p id="victory-message"></p>
+            <button class="btn-primary" onclick="location.reload()">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script src="dist/models/types.js"></script>
+    <script src="dist/data/cardPool.js"></script>
+    <script src="dist/engine/gameEngine.js"></script>
+    <script src="dist/ai/simpleAI.js"></script>
+    <script>
+        let gameState = null;
+        let selectedCard = null;
+
+        // ゲーム初期化
+        window.onload = function() {
+            gameState = initializeGame();
+            processAutoPhase(gameState);
+            updateUI();
+        };
+
+        // UI更新
+        function updateUI() {
+            const player = gameState.player1;
+            const ai = gameState.player2;
+
+            // ターン情報
+            document.getElementById('turn-number').textContent = gameState.turnNumber;
+            document.getElementById('current-phase').textContent = gameState.phase;
+
+            // プレイヤー統計
+            document.getElementById('player-file').textContent = player.fileArea.length;
+            document.getElementById('player-evidence').textContent = `${player.evidenceArea.length}/7`;
+            document.getElementById('player-deck').textContent = player.deck.length;
+            document.getElementById('player-case').textContent = player.casePhase;
+
+            // AI統計
+            document.getElementById('ai-file').textContent = ai.fileArea.length;
+            document.getElementById('ai-evidence').textContent = `${ai.evidenceArea.length}/6`;
+            document.getElementById('ai-hand').textContent = ai.hand.length;
+            document.getElementById('ai-case').textContent = ai.casePhase;
+
+            // プレイヤーの場
+            renderField('player-field', player.field, true);
+
+            // プレイヤーの手札
+            renderHand('player-hand', player.hand);
+
+            // AIの場
+            renderField('ai-field', ai.field, false);
+
+            // アクティブプレイヤーのハイライト
+            if (gameState.currentPlayer === 'player1') {
+                document.getElementById('player-area').classList.add('current');
+                document.getElementById('ai-area').classList.remove('current');
+            } else {
+                document.getElementById('player-area').classList.remove('current');
+                document.getElementById('ai-area').classList.add('current');
+            }
+
+            // 勝利チェック
+            checkVictory();
+        }
+
+        function renderField(elementId, field, isPlayer) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            if (field.length === 0) {
+                container.innerHTML = '<div style="color:#999;padding:20px;">キャラクターなし</div>';
+                return;
+            }
+
+            field.forEach((fc, index) => {
+                const card = fc.card;
+                const div = document.createElement('div');
+                div.className = 'card';
+                if (fc.state === 'SLEEP') div.classList.add('sleep');
+
+                div.innerHTML = `
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-stats">
+                        <span class="card-level">Lv${card.level}</span>
+                        AP:${card.ap} LP:${card.lp}
+                    </div>
+                    <div class="card-stats">${fc.state}</div>
+                `;
+
+                if (isPlayer && fc.state === 'ACTIVE') {
+                    div.onclick = () => selectFieldCard(card.id);
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        function renderHand(elementId, hand) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            if (hand.length === 0) {
+                container.innerHTML = '<div style="color:#999;padding:20px;">手札なし</div>';
+                return;
+            }
+
+            hand.forEach((card, index) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                if (selectedCard === card.id) div.classList.add('selected');
+
+                if (card.type === 'CHARACTER') {
+                    div.innerHTML = `
+                        <div class="card-name">${card.name}</div>
+                        <div class="card-stats">
+                            <span class="card-level">Lv${card.level}</span>
+                            AP:${card.ap} LP:${card.lp}
+                        </div>
+                    `;
+                } else if (card.type === 'EVENT') {
+                    div.innerHTML = `
+                        <div class="card-name">[イベント] ${card.name}</div>
+                        <div class="card-stats">
+                            <span class="card-level">Lv${card.level}</span>
+                        </div>
+                        <div class="card-stats" style="font-size:0.8em;">${card.effect}</div>
+                    `;
+                }
+
+                div.onclick = () => selectHandCard(card.id);
+                container.appendChild(div);
+            });
+        }
+
+        function selectHandCard(cardId) {
+            selectedCard = selectedCard === cardId ? null : cardId;
+            updateUI();
+        }
+
+        function selectFieldCard(cardId) {
+            selectedCard = selectedCard === cardId ? null : cardId;
+            updateUI();
+        }
+
+        function playCard() {
+            if (!selectedCard) {
+                showMessage('カードを選択してください', 'error');
+                return;
+            }
+
+            const card = gameState.player1.hand.find(c => c.id === selectedCard);
+            if (!card) {
+                showMessage('選択されたカードが手札にありません', 'error');
+                return;
+            }
+
+            const actionType = card.type === 'CHARACTER' ? 'PLAY_CHARACTER' : 'PLAY_EVENT';
+            const result = executeAction(gameState, {
+                type: actionType,
+                cardId: selectedCard
+            });
+
+            showMessage(result.message, result.success ? 'success' : 'error');
+            selectedCard = null;
+            updateUI();
+        }
+
+        function performReasoning() {
+            if (!selectedCard) {
+                showMessage('推理するキャラクターを選択してください', 'error');
+                return;
+            }
+
+            const result = executeAction(gameState, {
+                type: 'REASONING',
+                cardId: selectedCard
+            });
+
+            showMessage(result.message, result.success ? 'success' : 'error');
+            selectedCard = null;
+            updateUI();
+        }
+
+        function performAttack() {
+            if (!selectedCard) {
+                showMessage('攻撃するキャラクターを選択してください', 'error');
+                return;
+            }
+
+            const result = executeAction(gameState, {
+                type: 'ATTACK',
+                cardId: selectedCard
+            });
+
+            showMessage(result.message, result.success ? 'success' : 'error');
+            selectedCard = null;
+            updateUI();
+        }
+
+        function useAssist() {
+            const result = executeAction(gameState, {
+                type: 'PARTNER_ASSIST'
+            });
+
+            showMessage(result.message, result.success ? 'success' : 'error');
+            updateUI();
+        }
+
+        function resolveCase() {
+            const result = executeAction(gameState, {
+                type: 'CASE_RESOLUTION'
+            });
+
+            showMessage(result.message, result.success ? 'success' : 'error');
+
+            if (result.gameState) {
+                gameState = result.gameState;
+            }
+
+            updateUI();
+        }
+
+        function endTurn() {
+            const result = executeAction(gameState, {
+                type: 'END_TURN'
+            });
+
+            if (result.gameState) {
+                gameState = result.gameState;
+            }
+
+            showMessage('ターン終了', 'success');
+            selectedCard = null;
+            updateUI();
+
+            // AIのターン
+            if (gameState.currentPlayer === 'player2') {
+                setTimeout(playAITurn, 1000);
+            }
+        }
+
+        function playAITurn() {
+            processAutoPhase(gameState);
+            updateUI();
+
+            let actionCount = 0;
+            const maxActions = 15;
+
+            const aiInterval = setInterval(() => {
+                if (actionCount >= maxActions || gameState.currentPlayer === 'player1') {
+                    clearInterval(aiInterval);
+                    return;
+                }
+
+                const aiAction = getAIAction(gameState);
+                const result = executeAction(gameState, aiAction);
+
+                showMessage(`AI: ${result.message}`, result.success ? 'success' : 'error');
+
+                if (result.gameState) {
+                    gameState = result.gameState;
+                }
+
+                updateUI();
+
+                if (aiAction.type === 'END_TURN') {
+                    clearInterval(aiInterval);
+                    processAutoPhase(gameState);
+                    updateUI();
+                }
+
+                actionCount++;
+            }, 800);
+        }
+
+        function showMessage(text, type = 'info') {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = 'message ' + type;
+            msgEl.style.display = 'block';
+
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function checkVictory() {
+            const winner = checkWinCondition(gameState);
+            if (winner) {
+                const winnerName = winner === 'player1' ? 'あなた' : 'AI';
+                document.getElementById('victory-message').textContent = `${winnerName}の勝利！`;
+                document.getElementById('victory-modal').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
