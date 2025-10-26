@@ -20,9 +20,17 @@ AIと対戦可能な名探偵コナンTCGクローンゲーム
 - **ブラウザ版**: クリック操作で直感的にプレイ
 - **コンソール版**: ターミナルで対話的にプレイ
 
-## 🎮 3つの遊び方
+## 🌐 オンラインでプレイ（GitHub Pages）
 
-### 方法1: ブラウザ版（推奨・最も簡単）
+**GitHub Pagesで公開中！** ブラウザで今すぐプレイ：
+
+👉 **https://redius777.github.io/konan_cardgame/**
+
+インストール不要、ブラウザだけでプレイできます！
+
+## 🎮 その他の遊び方
+
+### 方法1: ブラウザ版（ローカルサーバー）
 
 **WEBサーバーで起動:**
 ```bash
@@ -35,7 +43,7 @@ npm run web
 ### 方法2: ダウンロード版（サーバー不要）
 
 1. `conan-tcg-game.zip` をダウンロード＆解凍
-2. `game.html` をブラウザで開く
+2. `index.html` をブラウザで開く
 3. すぐにプレイ開始！
 
 **必要なもの:** ブラウザのみ
@@ -204,6 +212,25 @@ src/
 - [ ] 複数のデッキスロット
 - [ ] デッキのインポート/エクスポート
 - [ ] マルチプレイヤー対戦
+
+## 🚀 デプロイ
+
+このプロジェクトは**GitHub Pages**で自動的にデプロイされます。
+
+### 自動デプロイの仕組み
+
+1. `claude/conan-card-game-clone-011CUVAxrPjterKspJRwhd6v` ブランチにプッシュ
+2. GitHub Actionsが自動的に実行
+3. `gh-pages` ブランチに静的ファイルをデプロイ
+4. GitHub Pagesで公開
+
+### GitHub Pages設定
+
+リポジトリの Settings → Pages で以下を確認：
+- **Source**: Deploy from a branch
+- **Branch**: gh-pages / (root)
+
+設定後、数分で https://redius777.github.io/konan_cardgame/ でアクセス可能になります。
 
 ## ゲームルール詳細
 
