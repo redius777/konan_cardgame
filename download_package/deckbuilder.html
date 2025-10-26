@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デッキビルダー - 名探偵コナンTCG</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 { font-size: 2em; }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card-pool {
+            border-right: 2px solid #ddd;
+            padding-right: 20px;
+        }
+
+        .filters {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .card-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .card-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1e3c72;
+            font-size: 1.1em;
+        }
+
+        .card-stats {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .card-level {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+
+        .card-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .color-RED { background: #dc3545; }
+        .color-BLUE { background: #007bff; }
+        .color-YELLOW { background: #ffc107; }
+        .color-GREEN { background: #28a745; }
+        .color-WHITE { background: #f8f9fa; border: 1px solid #ddd; }
+        .color-BLACK { background: #343a40; }
+
+        .card-count {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .deck-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .deck-header {
+            background: #1e3c72;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .deck-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .deck-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .deck-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .deck-card-name {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .deck-card-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .message.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .card-pool {
+                border-right: none;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 デッキビルダー</h1>
+            <div class="header-buttons">
+                <button class="btn-success" onclick="saveDeck()">💾 デッキ保存</button>
+                <button class="btn-primary" onclick="startBattle()">⚔️ バトル開始</button>
+                <button class="btn-secondary" onclick="location.href='index.html'">🏠 メニューへ</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card-pool">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>🎨 色で絞り込み</label>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" onclick="filterByColor('ALL')">すべて</button>
+                            <button class="filter-btn" onclick="filterByColor('RED')">🔴 赤</button>
+                            <button class="filter-btn" onclick="filterByColor('BLUE')">🔵 青</button>
+                            <button class="filter-btn" onclick="filterByColor('YELLOW')">🟡 黄</button>
+                            <button class="filter-btn" onclick="filterByColor('GREEN')">🟢 緑</button>
+                            <button class="filter-btn" onclick="filterByColor('WHITE')">⚪ 白</button>
+                            <button class="filter-btn" onclick="filterByColor('BLACK')">⚫ 黒</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>📊 ソート</label>
+                        <select id="sortSelect" onchange="sortCards()">
+                            <option value="level-asc">レベル 低→高</option>
+                            <option value="level-desc">レベル 高→低</option>
+                            <option value="name">名前順</option>
+                            <option value="ap">AP順</option>
+                            <option value="lp">LP順</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>📦 カードタイプ</label>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" onclick="filterByType('ALL')">すべて</button>
+                            <button class="filter-btn" onclick="filterByType('CHARACTER')">キャラクター</button>
+                            <button class="filter-btn" onclick="filterByType('EVENT')">イベント</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cards-grid" id="cardsGrid"></div>
+            </div>
+
+            <div class="deck-panel">
+                <div class="deck-header">
+                    <h2>現在のデッキ</h2>
+                    <div class="deck-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="deckCount">0</div>
+                            <div class="stat-label">枚数 / 40</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="deckValid">❌</div>
+                            <div class="stat-label">デッキ状態</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="deck-list" id="deckList"></div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn-danger" style="width: 100%;" onclick="clearDeck()">🗑️ デッキをクリア</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <script>
+        // カードデータ
+        const CARDS = {
+            characters: [
+                {id:'c1',name:'小嶋元太',level:1,ap:2,lp:1,color:'RED'},
+                {id:'c2',name:'円谷光彦',level:1,ap:1,lp:2,color:'BLUE'},
+                {id:'c3',name:'吉田歩美',level:1,ap:1,lp:1,color:'YELLOW'},
+                {id:'c4',name:'灰原哀',level:1,ap:2,lp:2,color:'BLUE'},
+                {id:'c5',name:'毛利蘭',level:2,ap:4,lp:2,color:'RED'},
+                {id:'c6',name:'鈴木園子',level:2,ap:2,lp:3,color:'YELLOW'},
+                {id:'c7',name:'遠山和葉',level:2,ap:3,lp:2,color:'GREEN'},
+                {id:'c8',name:'毛利小五郎',level:2,ap:3,lp:1,color:'RED'},
+                {id:'c9',name:'工藤新一',level:3,ap:4,lp:4,color:'BLUE'},
+                {id:'c10',name:'怪盗キッド',level:3,ap:5,lp:3,color:'WHITE'},
+                {id:'c11',name:'赤井秀一',level:3,ap:6,lp:3,color:'BLACK'},
+                {id:'c12',name:'安室透',level:3,ap:5,lp:4,color:'YELLOW'},
+                {id:'c13',name:'コナン(推理)',level:4,ap:3,lp:5,color:'BLUE'},
+                {id:'c14',name:'平次(推理)',level:4,ap:4,lp:5,color:'RED'}
+            ],
+            events: [
+                {id:'e1',name:'新たな手がかり',level:1,effect:'証拠+1',color:'BLUE'},
+                {id:'e2',name:'推理ショー',level:2,effect:'証拠+2',color:'BLUE'},
+                {id:'e3',name:'混乱',level:1,effect:'相手証拠-1',color:'RED'},
+                {id:'e4',name:'現場検証',level:2,effect:'ドロー+1',color:'GREEN'},
+                {id:'e5',name:'罠',level:2,effect:'キャラ破壊',color:'BLACK'}
+            ]
+        };
+
+        let currentDeck = [];
+        let allCards = [];
+        let filteredCards = [];
+        let currentColorFilter = 'ALL';
+        let currentTypeFilter = 'ALL';
+
+        // 初期化
+        window.onload = function() {
+            // カードリストを作成
+            CARDS.characters.forEach(c => allCards.push({...c, type:'CHARACTER'}));
+            CARDS.events.forEach(c => allCards.push({...c, type:'EVENT'}));
+
+            // 保存済みデッキを読み込み
+            loadDeck();
+
+            // 表示
+            filteredCards = [...allCards];
+            renderCards();
+            updateDeckDisplay();
+        };
+
+        function filterByColor(color) {
+            currentColorFilter = color;
+            document.querySelectorAll('.filter-buttons button').forEach(btn => {
+                if(btn.textContent.includes('赤') || btn.textContent.includes('青') ||
+                   btn.textContent.includes('黄') || btn.textContent.includes('緑') ||
+                   btn.textContent.includes('白') || btn.textContent.includes('黒') ||
+                   btn.textContent === 'すべて') {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+            applyFilters();
+        }
+
+        function filterByType(type) {
+            currentTypeFilter = type;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            filteredCards = allCards.filter(card => {
+                const colorMatch = currentColorFilter === 'ALL' || card.color === currentColorFilter;
+                const typeMatch = currentTypeFilter === 'ALL' || card.type === currentTypeFilter;
+                return colorMatch && typeMatch;
+            });
+            sortCards();
+        }
+
+        function sortCards() {
+            const sortType = document.getElementById('sortSelect').value;
+
+            switch(sortType) {
+                case 'level-asc':
+                    filteredCards.sort((a,b) => a.level - b.level);
+                    break;
+                case 'level-desc':
+                    filteredCards.sort((a,b) => b.level - a.level);
+                    break;
+                case 'name':
+                    filteredCards.sort((a,b) => a.name.localeCompare(b.name));
+                    break;
+                case 'ap':
+                    filteredCards.sort((a,b) => (b.ap||0) - (a.ap||0));
+                    break;
+                case 'lp':
+                    filteredCards.sort((a,b) => (b.lp||0) - (a.lp||0));
+                    break;
+            }
+
+            renderCards();
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            filteredCards.forEach(card => {
+                const count = currentDeck.filter(c => c.id === card.id).length;
+                const div = document.createElement('div');
+                div.className = 'card-item';
+
+                if(card.type === 'CHARACTER') {
+                    div.innerHTML = `
+                        <div class="card-name">${card.name}</div>
+                        <div class="card-stats">
+                            <span class="card-level">Lv${card.level}</span>
+                            <span class="card-color color-${card.color}"></span>
+                        </div>
+                        <div class="card-stats">AP:${card.ap} LP:${card.lp}</div>
+                        ${count > 0 ? `<div class="card-count">${count}</div>` : ''}
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="card-name">${card.name}</div>
+                        <div class="card-stats">
+                            <span class="card-level">Lv${card.level}</span>
+                            <span class="card-color color-${card.color}"></span>
+                        </div>
+                        <div class="card-stats" style="font-size:0.85em;">${card.effect}</div>
+                        ${count > 0 ? `<div class="card-count">${count}</div>` : ''}
+                    `;
+                }
+
+                div.onclick = () => addCardToDeck(card);
+                grid.appendChild(div);
+            });
+        }
+
+        function addCardToDeck(card) {
+            // 同じカードは3枚まで
+            const count = currentDeck.filter(c => c.id === card.id).length;
+            if(count >= 3) {
+                showMessage('同じカードは3枚までです', 'error');
+                return;
+            }
+
+            // デッキ40枚まで
+            if(currentDeck.length >= 40) {
+                showMessage('デッキは40枚までです', 'error');
+                return;
+            }
+
+            currentDeck.push(card);
+            updateDeckDisplay();
+            renderCards();
+            showMessage(`${card.name} を追加しました`);
+        }
+
+        function removeCardFromDeck(cardId, index) {
+            currentDeck.splice(index, 1);
+            updateDeckDisplay();
+            renderCards();
+            showMessage('カードを削除しました');
+        }
+
+        function updateDeckDisplay() {
+            const deckList = document.getElementById('deckList');
+            const deckCount = document.getElementById('deckCount');
+            const deckValid = document.getElementById('deckValid');
+
+            deckCount.textContent = currentDeck.length;
+            deckValid.textContent = currentDeck.length === 40 ? '✅' : '❌';
+
+            // デッキリストを表示
+            const grouped = {};
+            currentDeck.forEach((card, index) => {
+                if(!grouped[card.id]) {
+                    grouped[card.id] = {card, indices: []};
+                }
+                grouped[card.id].indices.push(index);
+            });
+
+            deckList.innerHTML = '';
+            Object.values(grouped).forEach(group => {
+                const card = group.card;
+                const count = group.indices.length;
+
+                const div = document.createElement('div');
+                div.className = 'deck-card';
+                div.innerHTML = `
+                    <div class="deck-card-name">
+                        ${card.name}
+                        <span class="card-level">Lv${card.level}</span>
+                        ${card.type === 'CHARACTER' ? `AP:${card.ap} LP:${card.lp}` : card.effect}
+                    </div>
+                    <div class="deck-card-actions">
+                        <span style="font-weight:bold;margin-right:10px;">×${count}</span>
+                        <button class="btn-danger btn-small" onclick="removeCardFromDeck('${card.id}', ${group.indices[0]})">-</button>
+                    </div>
+                `;
+                deckList.appendChild(div);
+            });
+        }
+
+        function clearDeck() {
+            if(confirm('デッキをすべてクリアしますか？')) {
+                currentDeck = [];
+                updateDeckDisplay();
+                renderCards();
+                showMessage('デッキをクリアしました');
+            }
+        }
+
+        function saveDeck() {
+            if(currentDeck.length !== 40) {
+                if(!confirm('デッキが40枚ではありませんが、保存しますか？')) {
+                    return;
+                }
+            }
+
+            localStorage.setItem('customDeck', JSON.stringify(currentDeck));
+            showMessage('デッキを保存しました！', 'success');
+        }
+
+        function loadDeck() {
+            const saved = localStorage.getItem('customDeck');
+            if(saved) {
+                currentDeck = JSON.parse(saved);
+            }
+        }
+
+        function startBattle() {
+            if(currentDeck.length !== 40) {
+                alert('デッキは40枚にしてください');
+                return;
+            }
+
+            saveDeck();
+            location.href = 'battle.html';
+        }
+
+        function showMessage(text, type='success') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.style.background = type === 'error' ? '#dc3545' : '#28a745';
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

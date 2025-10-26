@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名探偵コナン TCG - ブラウザ版</title>
+    <title>バトル - 名探偵コナン TCG</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -215,8 +215,8 @@
                     <div class="info-value" id="current-phase">メイン</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">モード</div>
-                    <div class="info-value">クイック</div>
+                    <div class="info-label">デッキ</div>
+                    <div class="info-value" id="deck-type">カスタム</div>
                 </div>
             </div>
         </div>
@@ -314,6 +314,22 @@
             }
 
             function buildDeck() {
+                // カスタムデッキを読み込み
+                const savedDeck = localStorage.getItem('customDeck');
+                if(savedDeck) {
+                    try {
+                        const customDeck = JSON.parse(savedDeck);
+                        if(customDeck.length === 40) {
+                            document.getElementById('deck-type').textContent = 'カスタム';
+                            return shuffle(customDeck);
+                        }
+                    } catch(e) {
+                        console.error('カスタムデッキの読み込みに失敗:', e);
+                    }
+                }
+
+                // デフォルトデッキ
+                document.getElementById('deck-type').textContent = 'デフォルト';
                 const deck = [];
                 const chars = CARDS.characters;
                 // レベル1:12, 2:12, 3:4, 4:2
