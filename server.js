@@ -23,8 +23,8 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
     console.log(`${req.method} ${req.url}`);
 
-    // デフォルトはgame.html
-    let filePath = req.url === '/' ? '/game.html' : req.url;
+    // デフォルトはindex.html（メニュー）
+    let filePath = req.url === '/' ? '/index.html' : req.url;
     filePath = path.join(__dirname, filePath);
 
     const extname = String(path.extname(filePath)).toLowerCase();
