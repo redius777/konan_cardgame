@@ -9,63 +9,85 @@
 
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:
+                linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%),
+                radial-gradient(circle at top right, rgba(102, 126, 234, 0.2), transparent),
+                radial-gradient(circle at bottom left, rgba(118, 75, 162, 0.2), transparent);
+            background-blend-mode: normal;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1400px;
+        .game-container {
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            overflow: hidden;
+            height: 98vh;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 { font-size: 2em; margin-bottom: 10px; }
-
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .info-item { text-align: center; }
-        .info-label { font-size: 0.8em; opacity: 0.8; }
-        .info-value { font-size: 1.3em; font-weight: bold; }
-
-        .game-board { padding: 20px; }
-
-        .player-area {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-        }
-
-        .player-area.current {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .player-header {
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header h1 { font-size: 1.8em; }
+        .game-info { display: flex; gap: 25px; }
+        .info-item { text-align: center; }
+        .info-label { font-size: 0.75em; opacity: 0.8; }
+        .info-value { font-size: 1.2em; font-weight: bold; margin-top: 3px; }
+
+        .btn-menu {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-menu:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+
+        .game-board {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto 1fr auto 1fr auto;
+            gap: 10px;
+            padding: 0 10px;
+        }
+
+        /* プレイヤー情報バー */
+        .player-info {
+            grid-column: 1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 12px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 3px solid #667eea;
+        }
+
+        .ai-info {
+            grid-row: 1;
+            border-color: #dc3545;
+        }
+
+        .player-own-info {
+            grid-row: 4;
+            border-color: #667eea;
         }
 
         .player-name {
@@ -74,79 +96,268 @@
             color: #1e3c72;
         }
 
-        .player-stats { display: flex; gap: 20px; }
-        .stat { text-align: center; }
-        .stat-label { font-size: 0.8em; color: #666; }
-        .stat-value { font-size: 1.2em; font-weight: bold; color: #667eea; }
-
-        .field { margin: 15px 0; }
-        .field-label { font-weight: bold; margin-bottom: 10px; color: #555; }
-        .cards { display: flex; gap: 10px; flex-wrap: wrap; min-height: 80px; }
-
-        .card {
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 12px;
-            min-width: 150px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .player-stats {
+            display: flex;
+            gap: 20px;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border-color: #667eea;
+        .stat {
+            text-align: center;
+            min-width: 50px;
         }
 
-        .card.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-            transform: translateY(-3px);
+        .stat-label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 2px;
         }
 
-        .card.sleep {
-            opacity: 0.6;
-            background: #f5f5f5;
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
         }
 
-        .card-name { font-weight: bold; margin-bottom: 5px; color: #1e3c72; }
-        .card-stats { font-size: 0.9em; color: #666; margin-top: 3px; }
-
-        .card-level {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            margin-right: 5px;
+        /* デッキ＆捨て札エリア */
+        .deck-area {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            min-width: 120px;
         }
 
-        .actions {
-            margin-top: 20px;
+        .player-deck-area {
+            grid-column: 2;
+            grid-row: 4 / 6;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .pile {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 3px solid #ddd;
         }
 
-        .actions h3 { margin-bottom: 15px; color: #1e3c72; }
-        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pile-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+        }
 
-        button {
-            padding: 12px 24px;
-            border: none;
+        .pile-card {
+            width: 80px;
+            height: 110px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid #333;
             border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .pile-card::before {
+            content: '🎴';
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.3;
+        }
+
+        .pile-count {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 8px;
             font-weight: bold;
         }
 
+        .discard-pile .pile-card {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        /* フィールドエリア */
+        .field-area {
+            grid-column: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            border: 3px solid rgba(255,255,255,0.3);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            min-height: 150px;
+        }
+
+        .ai-field {
+            grid-row: 2;
+        }
+
+        .player-field {
+            grid-row: 3;
+        }
+
+        .field-label {
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 0.95em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .cards {
+            display: flex;
+            gap: 12px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            min-height: 100px;
+            padding: 5px;
+        }
+
+        .cards::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .cards::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        .cards::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        /* カードスタイル */
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 3px solid #333;
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 140px;
+            max-width: 140px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+            border-color: #667eea;
+            z-index: 10;
+        }
+
+        .card.selected {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(255, 193, 7, 0.8);
+        }
+
+        .card.sleep {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: rotate(-90deg);
+            border-color: #6c757d;
+        }
+
+        .card-name {
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #1e3c72;
+            font-size: 0.95em;
+            text-align: center;
+        }
+
+        .card-stats {
+            font-size: 0.85em;
+            color: #495057;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .card-level {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 手札エリア */
+        .hand-area {
+            grid-column: 1 / 3;
+            grid-row: 5;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+            border: 3px solid #667eea;
+            max-height: 180px;
+            overflow: hidden;
+        }
+
+        .hand-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1e3c72;
+            font-size: 0.95em;
+        }
+
+        /* アクションエリア */
+        .actions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 60, 114, 0.95);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            z-index: 100;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
         button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
 
         button:disabled {
@@ -154,22 +365,25 @@
             cursor: not-allowed;
         }
 
-        .btn-primary { background: #667eea; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-warning { background: #ffc107; color: #333; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20833a 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; }
 
         .message {
-            margin-top: 15px;
-            padding: 15px;
+            margin-top: 12px;
+            padding: 12px;
             border-radius: 8px;
             background: #e3f2fd;
             border-left: 4px solid #2196F3;
             display: none;
+            color: #1e3c72;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
 
-        .message.error { background: #ffebee; border-left-color: #f44336; }
-        .message.success { background: #e8f5e9; border-left-color: #4caf50; }
+        .message.error { background: #ffebee; border-left-color: #f44336; color: #c62828; }
+        .message.success { background: #e8f5e9; border-left-color: #4caf50; color: #2e7d32; }
 
         .modal {
             display: none;
@@ -178,101 +392,149 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active { display: flex; }
 
         .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 50px;
+            border-radius: 20px;
             text-align: center;
             max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 4px solid #667eea;
         }
 
-        .modal-content h2 { color: #1e3c72; margin-bottom: 20px; font-size: 2em; }
-        .modal-content p { font-size: 1.2em; margin-bottom: 30px; }
+        .modal-content h2 {
+            color: #1e3c72;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-content p {
+            font-size: 1.3em;
+            margin-bottom: 35px;
+            color: #495057;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="game-container">
+        <!-- ヘッダー -->
         <div class="header">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="header-left">
                 <h1>🔍 名探偵コナン TCG 🎴</h1>
-                <button onclick="location.href='index.html'" style="background:rgba(255,255,255,0.2);border:2px solid white;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;">🏠 メニューへ</button>
+                <div class="game-info">
+                    <div class="info-item">
+                        <div class="info-label">ターン</div>
+                        <div class="info-value" id="turn-number">1</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">フェーズ</div>
+                        <div class="info-value" id="current-phase">メイン</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">デッキ</div>
+                        <div class="info-value" id="deck-type">読込中...</div>
+                    </div>
+                </div>
             </div>
-            <div class="game-info">
-                <div class="info-item">
-                    <div class="info-label">ターン</div>
-                    <div class="info-value" id="turn-number">1</div>
+            <button onclick="location.href='index.html'" class="btn-menu">🏠 メニューへ</button>
+        </div>
+
+        <!-- ゲームボード -->
+        <div class="game-board">
+            <!-- AI情報バー -->
+            <div class="player-info ai-info">
+                <div class="player-name">🤖 AI (服部平次)</div>
+                <div class="player-stats">
+                    <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="ai-file">0</div></div>
+                    <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="ai-evidence">0/6</div></div>
+                    <div class="stat"><div class="stat-label">手札</div><div class="stat-value" id="ai-hand">0</div></div>
+                    <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="ai-case">事件</div></div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">フェーズ</div>
-                    <div class="info-value" id="current-phase">メイン</div>
+            </div>
+
+            <!-- AIのデッキ＆捨て札 -->
+            <div class="deck-area">
+                <div class="pile deck-pile">
+                    <div class="pile-label">山札 (AI)</div>
+                    <div class="pile-card" id="ai-deck-visual"></div>
+                    <div class="pile-count" id="ai-deck-count">40枚</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">デッキ</div>
-                    <div class="info-value" id="deck-type">カスタム</div>
+                <div class="pile discard-pile">
+                    <div class="pile-label">捨て札 (AI)</div>
+                    <div class="pile-card" id="ai-discard-visual"></div>
+                    <div class="pile-count" id="ai-discard-count">0枚</div>
                 </div>
+            </div>
+
+            <!-- AIのフィールド -->
+            <div class="field-area ai-field">
+                <div class="field-label">AIの場</div>
+                <div class="cards" id="ai-field"></div>
+            </div>
+
+            <!-- プレイヤーのフィールド -->
+            <div class="field-area player-field">
+                <div class="field-label">あなたの場</div>
+                <div class="cards" id="player-field"></div>
+            </div>
+
+            <!-- プレイヤー情報バー -->
+            <div class="player-info player-own-info">
+                <div class="player-name">👤 あなた (江戸川コナン)</div>
+                <div class="player-stats">
+                    <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="player-file">0</div></div>
+                    <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="player-evidence">0/7</div></div>
+                    <div class="stat"><div class="stat-label">山札</div><div class="stat-value" id="player-deck">40</div></div>
+                    <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="player-case">事件</div></div>
+                </div>
+            </div>
+
+            <!-- プレイヤーのデッキ＆捨て札 -->
+            <div class="player-deck-area">
+                <div class="pile deck-pile">
+                    <div class="pile-label">山札</div>
+                    <div class="pile-card" id="player-deck-visual"></div>
+                    <div class="pile-count" id="player-deck-count">40枚</div>
+                </div>
+                <div class="pile discard-pile">
+                    <div class="pile-label">捨て札</div>
+                    <div class="pile-card" id="player-discard-visual"></div>
+                    <div class="pile-count" id="player-discard-count">0枚</div>
+                </div>
+            </div>
+
+            <!-- 手札エリア -->
+            <div class="hand-area">
+                <div class="hand-label">手札 (クリックで選択)</div>
+                <div class="cards" id="player-hand"></div>
             </div>
         </div>
 
-        <div class="game-board">
-            <div class="player-area" id="ai-area">
-                <div class="player-header">
-                    <div class="player-name">🤖 AI (服部平次)</div>
-                    <div class="player-stats">
-                        <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="ai-file">0</div></div>
-                        <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="ai-evidence">0/6</div></div>
-                        <div class="stat"><div class="stat-label">手札</div><div class="stat-value" id="ai-hand">0</div></div>
-                        <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="ai-case">事件</div></div>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="field-label">場のキャラクター</div>
-                    <div class="cards" id="ai-field"></div>
-                </div>
+        <!-- アクションボタン -->
+        <div class="actions">
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="game.playCard()">カードプレイ</button>
+                <button class="btn-primary" onclick="game.performReasoning()">推理</button>
+                <button class="btn-danger" onclick="game.performAttack()">アクション</button>
+                <button class="btn-warning" onclick="game.useAssist()">アシスト</button>
+                <button class="btn-success" onclick="game.resolveCase()">事件解決</button>
+                <button class="btn-primary" onclick="game.endTurn()">ターン終了</button>
             </div>
-
-            <div class="player-area current" id="player-area">
-                <div class="player-header">
-                    <div class="player-name">👤 あなた (江戸川コナン)</div>
-                    <div class="player-stats">
-                        <div class="stat"><div class="stat-label">FILE</div><div class="stat-value" id="player-file">0</div></div>
-                        <div class="stat"><div class="stat-label">証拠</div><div class="stat-value" id="player-evidence">0/7</div></div>
-                        <div class="stat"><div class="stat-label">デッキ</div><div class="stat-value" id="player-deck">40</div></div>
-                        <div class="stat"><div class="stat-label">事件</div><div class="stat-value" id="player-case">事件</div></div>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="field-label">場のキャラクター</div>
-                    <div class="cards" id="player-field"></div>
-                </div>
-                <div class="field">
-                    <div class="field-label">手札 (クリックで選択)</div>
-                    <div class="cards" id="player-hand"></div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <h3>アクション</h3>
-                <div class="action-buttons">
-                    <button class="btn-primary" onclick="game.playCard()">カードをプレイ</button>
-                    <button class="btn-primary" onclick="game.performReasoning()">推理する</button>
-                    <button class="btn-danger" onclick="game.performAttack()">アクション（攻撃）</button>
-                    <button class="btn-warning" onclick="game.useAssist()">アシスト</button>
-                    <button class="btn-success" onclick="game.resolveCase()">事件解決</button>
-                    <button class="btn-primary" onclick="game.endTurn()">ターン終了</button>
-                </div>
-                <div id="message" class="message"></div>
-            </div>
+            <div id="message" class="message"></div>
         </div>
     </div>
 
+    <!-- 勝利モーダル -->
     <div id="victory-modal" class="modal">
         <div class="modal-content">
             <h2>🎉 ゲーム終了！</h2>
@@ -517,7 +779,7 @@
             function assist(player) {
                 if(player.partnerState!=='ACTIVE') return {success:false, message:'パートナーはSleep'};
                 if(player.casePhase==='RESOLUTION') return {success:false, message:'既に解決フェーズ'};
-                if(player.fileArea.length<6) return {success:false, message:`FILE不足(必要:7, 現在:${player.fileArea.length})`};
+                if(player.fileArea.length<7) return {success:false, message:`FILE不足(必要:7, 現在:${player.fileArea.length})`};
 
                 player.partnerState='SLEEP';
                 player.casePhase='RESOLUTION';
@@ -557,7 +819,7 @@
                 }
 
                 // アシスト可能なら
-                if(ai.partnerState==='ACTIVE' && ai.casePhase==='INCIDENT' && ai.fileArea.length>=6) {
+                if(ai.partnerState==='ACTIVE' && ai.casePhase==='INCIDENT' && ai.fileArea.length>=7) {
                     return {type:'PARTNER_ASSIST'};
                 }
 
@@ -616,6 +878,17 @@
                 document.getElementById('ai-hand').textContent = a.hand.length;
                 document.getElementById('ai-case').textContent = a.casePhase;
 
+                // デッキ＆捨て札の表示
+                document.getElementById('player-deck-visual').textContent = p.deck.length;
+                document.getElementById('player-deck-count').textContent = `${p.deck.length}枚`;
+                document.getElementById('player-discard-visual').textContent = p.discardPile.length;
+                document.getElementById('player-discard-count').textContent = `${p.discardPile.length}枚`;
+
+                document.getElementById('ai-deck-visual').textContent = a.deck.length;
+                document.getElementById('ai-deck-count').textContent = `${a.deck.length}枚`;
+                document.getElementById('ai-discard-visual').textContent = a.discardPile.length;
+                document.getElementById('ai-discard-count').textContent = `${a.discardPile.length}枚`;
+
                 renderField('player-field', p.field);
                 renderHand('player-hand', p.hand);
                 renderField('ai-field', a.field);
@@ -632,7 +905,7 @@
                 const cont = document.getElementById(elemId);
                 cont.innerHTML = '';
                 if(field.length===0) {
-                    cont.innerHTML = '<div style="color:#999;padding:20px;">なし</div>';
+                    cont.innerHTML = '<div style="color:rgba(255,255,255,0.5);padding:20px;text-align:center;">カードなし</div>';
                     return;
                 }
                 field.forEach(fc => {
@@ -640,8 +913,9 @@
                     div.className = 'card';
                     if(fc.state==='SLEEP') div.classList.add('sleep');
                     div.innerHTML = `<div class="card-name">${fc.card.name}</div>
-                        <div class="card-stats"><span class="card-level">Lv${fc.card.level}</span> AP:${fc.card.ap} LP:${fc.card.lp}</div>
-                        <div class="card-stats">${fc.state}</div>`;
+                        <div class="card-stats"><span class="card-level">Lv${fc.card.level}</span></div>
+                        <div class="card-stats">AP:${fc.card.ap} LP:${fc.card.lp}</div>
+                        <div class="card-stats" style="margin-top:8px;font-weight:bold;color:#667eea;">${fc.state}</div>`;
                     if(elemId==='player-field' && fc.state==='ACTIVE') {
                         div.onclick = () => { selectedCard=fc.card.id; updateUI(); };
                     }
@@ -654,7 +928,7 @@
                 const cont = document.getElementById(elemId);
                 cont.innerHTML = '';
                 if(hand.length===0) {
-                    cont.innerHTML = '<div style="color:#999;padding:20px;">なし</div>';
+                    cont.innerHTML = '<div style="color:#999;padding:20px;text-align:center;">手札なし</div>';
                     return;
                 }
                 hand.forEach(card => {
@@ -664,11 +938,13 @@
 
                     if(card.type==='CHARACTER') {
                         div.innerHTML = `<div class="card-name">${card.name}</div>
-                            <div class="card-stats"><span class="card-level">Lv${card.level}</span> AP:${card.ap} LP:${card.lp}</div>`;
-                    } else {
-                        div.innerHTML = `<div class="card-name">[イベント] ${card.name}</div>
                             <div class="card-stats"><span class="card-level">Lv${card.level}</span></div>
-                            <div class="card-stats" style="font-size:0.8em;">${card.effect}</div>`;
+                            <div class="card-stats">AP:${card.ap} LP:${card.lp}</div>`;
+                    } else {
+                        div.innerHTML = `<div class="card-name">[イベント]</div>
+                            <div class="card-name">${card.name}</div>
+                            <div class="card-stats"><span class="card-level">Lv${card.level}</span></div>
+                            <div class="card-stats" style="font-size:0.75em;margin-top:5px;">${card.effect}</div>`;
                     }
 
                     div.onclick = () => { selectedCard=selectedCard===card.id?null:card.id; updateUI(); };
