@@ -1,0 +1,25 @@
+{
+  "name": "conan-tcg",
+  "version": "1.0.0",
+  "description": "Detective Conan Trading Card Game Clone",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest"
+  },
+  "keywords": [
+    "tcg",
+    "card-game",
+    "conan"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "dependencies": {}
+}
