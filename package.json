@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "web": "node server.js",
     "dev": "ts-node src/index.ts",
     "test": "jest"
   },
