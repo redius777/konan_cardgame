@@ -189,6 +189,14 @@
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
         }
 
+        .file-pile .pile-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .file-pile .pile-card::before {
+            content: '📁';
+        }
+
         /* フィールドエリア */
         .field-area {
             grid-column: 1;
@@ -462,8 +470,13 @@
                 </div>
             </div>
 
-            <!-- AIのデッキ＆捨て札 -->
+            <!-- AIのデッキ＆捨て札＆FILE -->
             <div class="deck-area">
+                <div class="pile file-pile">
+                    <div class="pile-label">FILE (AI)</div>
+                    <div class="pile-card" id="ai-file-visual"></div>
+                    <div class="pile-count" id="ai-file-count">0枚</div>
+                </div>
                 <div class="pile deck-pile">
                     <div class="pile-label">山札 (AI)</div>
                     <div class="pile-card" id="ai-deck-visual"></div>
@@ -499,8 +512,13 @@
                 </div>
             </div>
 
-            <!-- プレイヤーのデッキ＆捨て札 -->
+            <!-- プレイヤーのデッキ＆捨て札＆FILE -->
             <div class="player-deck-area">
+                <div class="pile file-pile">
+                    <div class="pile-label">FILE</div>
+                    <div class="pile-card" id="player-file-visual"></div>
+                    <div class="pile-count" id="player-file-count">0枚</div>
+                </div>
                 <div class="pile deck-pile">
                     <div class="pile-label">山札</div>
                     <div class="pile-card" id="player-deck-visual"></div>
@@ -878,12 +896,16 @@
                 document.getElementById('ai-hand').textContent = a.hand.length;
                 document.getElementById('ai-case').textContent = a.casePhase;
 
-                // デッキ＆捨て札の表示
+                // デッキ＆捨て札＆FILEの表示
+                document.getElementById('player-file-visual').textContent = p.fileArea.length;
+                document.getElementById('player-file-count').textContent = `${p.fileArea.length}枚`;
                 document.getElementById('player-deck-visual').textContent = p.deck.length;
                 document.getElementById('player-deck-count').textContent = `${p.deck.length}枚`;
                 document.getElementById('player-discard-visual').textContent = p.discardPile.length;
                 document.getElementById('player-discard-count').textContent = `${p.discardPile.length}枚`;
 
+                document.getElementById('ai-file-visual').textContent = a.fileArea.length;
+                document.getElementById('ai-file-count').textContent = `${a.fileArea.length}枚`;
                 document.getElementById('ai-deck-visual').textContent = a.deck.length;
                 document.getElementById('ai-deck-count').textContent = `${a.deck.length}枚`;
                 document.getElementById('ai-discard-visual').textContent = a.discardPile.length;
