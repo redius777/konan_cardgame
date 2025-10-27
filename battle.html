@@ -61,15 +61,80 @@
         .game-board {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr auto;
-            grid-template-rows: auto 1fr auto 1fr auto;
+            grid-template-columns: auto 1fr auto;
+            grid-template-rows: auto auto auto auto auto auto auto;
             gap: 10px;
             padding: 0 10px;
         }
 
+        /* 証拠エリア */
+        .evidence-area {
+            grid-column: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            min-width: 120px;
+        }
+
+        .ai-evidence-area {
+            grid-row: 1 / 4;
+        }
+
+        .player-evidence-area {
+            grid-row: 4 / 8;
+        }
+
+        .evidence-pile {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 3px solid #28a745;
+        }
+
+        .evidence-pile .pile-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .evidence-pile .pile-card {
+            width: 80px;
+            height: 110px;
+            background: linear-gradient(135deg, #28a745 0%, #20833a 100%);
+            border: 3px solid #333;
+            border-radius: 8px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .evidence-pile .pile-card::before {
+            content: '🔍';
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.3;
+        }
+
+        .evidence-pile .pile-count {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
         /* プレイヤー情報バー */
         .player-info {
-            grid-column: 1;
+            grid-column: 2;
             background: rgba(255,255,255,0.95);
             border-radius: 10px;
             padding: 12px 20px;
@@ -86,7 +151,7 @@
         }
 
         .player-own-info {
-            grid-row: 4;
+            grid-row: 6;
             border-color: #667eea;
         }
 
@@ -120,8 +185,8 @@
 
         /* デッキ＆捨て札エリア */
         .deck-area {
-            grid-column: 2;
-            grid-row: 1 / 3;
+            grid-column: 3;
+            grid-row: 1 / 4;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -130,8 +195,8 @@
         }
 
         .player-deck-area {
-            grid-column: 2;
-            grid-row: 4 / 6;
+            grid-column: 3;
+            grid-row: 4 / 8;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -199,7 +264,7 @@
 
         /* フィールドエリア */
         .field-area {
-            grid-column: 1;
+            grid-column: 2;
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
             padding: 15px;
@@ -214,7 +279,43 @@
         }
 
         .player-field {
+            grid-row: 5;
+        }
+
+        /* FILEカードエリア */
+        .file-card-area {
+            grid-column: 2;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            border: 3px solid rgba(243, 156, 18, 0.6);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            min-height: 100px;
+        }
+
+        .ai-file-card-area {
             grid-row: 3;
+        }
+
+        .player-file-card-area {
+            grid-row: 4;
+        }
+
+        /* パートナーエリア */
+        .partner-area {
+            grid-column: 2;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            border: 3px solid rgba(102, 126, 234, 0.6);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            min-height: 100px;
+        }
+
+        .player-partner-area {
+            grid-row: 6;
         }
 
         .field-label {
@@ -312,8 +413,8 @@
 
         /* 手札エリア */
         .hand-area {
-            grid-column: 1 / 3;
-            grid-row: 5;
+            grid-column: 2;
+            grid-row: 7;
             background: rgba(255,255,255,0.95);
             border-radius: 12px;
             padding: 15px;
@@ -459,6 +560,15 @@
 
         <!-- ゲームボード -->
         <div class="game-board">
+            <!-- AI証拠エリア -->
+            <div class="evidence-area ai-evidence-area">
+                <div class="evidence-pile">
+                    <div class="pile-label">証拠 (AI)</div>
+                    <div class="pile-card" id="ai-evidence-visual"></div>
+                    <div class="pile-count" id="ai-evidence-pile-count">0/6</div>
+                </div>
+            </div>
+
             <!-- AI情報バー -->
             <div class="player-info ai-info">
                 <div class="player-name">🤖 AI (服部平次)</div>
@@ -491,14 +601,41 @@
 
             <!-- AIのフィールド -->
             <div class="field-area ai-field">
-                <div class="field-label">AIの場</div>
+                <div class="field-label">AIの場 (キャラクター最大5枚)</div>
                 <div class="cards" id="ai-field"></div>
+            </div>
+
+            <!-- AIのFILEカードエリア -->
+            <div class="file-card-area ai-file-card-area">
+                <div class="field-label">AIのFILE (コストカード)</div>
+                <div class="cards" id="ai-file-cards"></div>
+            </div>
+
+            <!-- プレイヤーのFILEカードエリア -->
+            <div class="file-card-area player-file-card-area">
+                <div class="field-label">あなたのFILE (コストカード)</div>
+                <div class="cards" id="player-file-cards"></div>
             </div>
 
             <!-- プレイヤーのフィールド -->
             <div class="field-area player-field">
-                <div class="field-label">あなたの場</div>
+                <div class="field-label">あなたの場 (キャラクター最大5枚)</div>
                 <div class="cards" id="player-field"></div>
+            </div>
+
+            <!-- プレイヤーのパートナーエリア -->
+            <div class="partner-area player-partner-area">
+                <div class="field-label">パートナーエリア (パートナー+MRカード、最大2枚)</div>
+                <div class="cards" id="player-partner"></div>
+            </div>
+
+            <!-- プレイヤー証拠エリア -->
+            <div class="evidence-area player-evidence-area">
+                <div class="evidence-pile">
+                    <div class="pile-label">証拠</div>
+                    <div class="pile-card" id="player-evidence-visual"></div>
+                    <div class="pile-count" id="player-evidence-pile-count">0/7</div>
+                </div>
             </div>
 
             <!-- プレイヤー情報バー -->
@@ -911,9 +1048,18 @@
                 document.getElementById('ai-discard-visual').textContent = a.discardPile.length;
                 document.getElementById('ai-discard-count').textContent = `${a.discardPile.length}枚`;
 
+                // 証拠エリアの表示
+                document.getElementById('player-evidence-visual').textContent = p.evidenceArea.length;
+                document.getElementById('player-evidence-pile-count').textContent = `${p.evidenceArea.length}/7`;
+                document.getElementById('ai-evidence-visual').textContent = a.evidenceArea.length;
+                document.getElementById('ai-evidence-pile-count').textContent = `${a.evidenceArea.length}/6`;
+
                 renderField('player-field', p.field);
                 renderHand('player-hand', p.hand);
                 renderField('ai-field', a.field);
+                renderFileCards('player-file-cards', p.fileArea);
+                renderFileCards('ai-file-cards', a.fileArea);
+                renderPartner('player-partner', p);
 
                 const winner = checkWinner(gameState);
                 if(winner) {
@@ -972,6 +1118,44 @@
                     div.onclick = () => { selectedCard=selectedCard===card.id?null:card.id; updateUI(); };
                     cont.appendChild(div);
                 });
+            }
+
+            function renderFileCards(elemId, fileArea) {
+                const cont = document.getElementById(elemId);
+                cont.innerHTML = '';
+                if(fileArea.length===0) {
+                    cont.innerHTML = '<div style="color:rgba(255,255,255,0.5);padding:20px;text-align:center;">FILEなし</div>';
+                    return;
+                }
+                fileArea.forEach((card, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+                    div.innerHTML = `<div class="card-name">FILE</div>
+                        <div class="card-stats" style="font-size:2em;margin:10px 0;">📁</div>
+                        <div class="card-stats">${card.name}</div>
+                        <div class="card-stats" style="font-size:0.75em;margin-top:5px;">Lv${card.level}</div>`;
+                    cont.appendChild(div);
+                });
+            }
+
+            function renderPartner(elemId, player) {
+                const cont = document.getElementById(elemId);
+                cont.innerHTML = '';
+                const div = document.createElement('div');
+                div.className = 'card';
+                if(player.partnerState === 'SLEEP') div.classList.add('sleep');
+                div.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                div.style.color = 'white';
+                div.innerHTML = `<div class="card-name" style="color:white;">${player.partner}</div>
+                    <div class="card-stats" style="color:white;"><span class="card-level">パートナー</span></div>
+                    <div class="card-stats" style="color:white;">LP:2</div>
+                    <div class="card-stats" style="margin-top:8px;font-weight:bold;color:#ffc107;">${player.partnerState}</div>`;
+                if(elemId === 'player-partner' && player.partnerState === 'ACTIVE') {
+                    div.onclick = () => { selectedCard='partner'; updateUI(); };
+                }
+                if(selectedCard === 'partner') div.classList.add('selected');
+                cont.appendChild(div);
             }
 
             function showMessage(text, type='info') {
